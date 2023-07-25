@@ -7,7 +7,7 @@ import scipy.ndimage
 def convolve_1d(x, axis, kernel_size=5):
     
     kernel = np.ones(kernel_size) / kernel_size
-    x_convolved = np.apply_along_axis(lambda m: np.convolve(m, kernel, mode='same'), axis=axis, arr=x)
+    x_convolved = np.apply_along_axis(lambda m: np.convolve(m, kernel, mode='full'), axis=axis, arr=x)
     return x_convolved
 
 def halfgaussian_kernel1d(sigma, radius):
@@ -34,6 +34,12 @@ def halfgaussian_filter1d(input, sigma, axis=-1, output=None,
     return scipy.ndimage.convolve1d(input, weights, axis, output, mode, cval, origin)
 
 # ---- PLOTTING  ---- #
+
+def remove_top_right_frame(ax):
+    ax.spines[['right', 'top']].set_visible(False)
+    return
+
+
 def get_trial_type_color(trial_type):
     """
     Get trial type color.

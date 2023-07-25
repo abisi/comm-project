@@ -50,13 +50,16 @@ def get_area_color(area):
     """
     Get area color.
     """
-    area_colors = {'DLS':'mediumorchid',
-                'DS':'plum',
-               'tjM1':'peru',
-                'OFC':'darkslateblue',
-               'wS1':'crimson',
-               'wM2':'seagreen',
-               'Thalamus':'salmon'}
+    area_colors = {
+                   'DLS':'mediumorchid',
+                   'DS':'plum',
+                   'tjM1':'peru',
+                   'OFC':'darkslateblue',
+                   'wS1':'crimson',
+                   'wM2':'seagreen',
+                   'Thalamus':'salmon',
+                   'nS1':'slategray',
+    }
     return area_colors[area]
 
 

@@ -3,7 +3,7 @@ import scipy.stats as sts
 from sklearn.decomposition import PCA
 from sklearn.cross_decomposition import CCA
 from statsmodels.multivariate.cancorr import CanCorr
-import decoding as dec
+#import decoding as dec
 
 def angle_basis(basis1,basis2):
     """ Subspace aligment calculation.
@@ -33,7 +33,7 @@ def get_resids(X,trials,labels):
 
     return d_temp
 
-def align(X1, X2, m, resids_dict = {},cv=False):
+def align(X1, X2, m, cv=False):
 
     """
     aligns activity of two areas with CCA
@@ -67,19 +67,7 @@ def align(X1, X2, m, resids_dict = {},cv=False):
         X1_train,X1_test = X1,X1
         X2_train,X2_test = X2,X2
     
-    # if calculating residuals
-    if len(resids_dict.keys()) > 0:
 
-        trials_labels = resids_dict["trials"].iloc[idx]
-        
-        if cv:
-            trials_labels_train, trials_labels_test = trials_labels.iloc[n_trials//2:].copy(), trials_labels.iloc[:n_trials//2].copy()
-        else:
-            trials_labels_train, trials_labels_test = trials_labels, trials_labels
-
-        X1_train,X1_test = get_resids(X1_train,trials_labels_train,resids_dict["labels"]),get_resids(X1_test,trials_labels_test,resids_dict["labels"])
-        X2_train,X2_test = get_resids(X2_train,trials_labels_train,resids_dict["labels"]),get_resids(X2_test,trials_labels_test,resids_dict["labels"])
-        
     # reduce dimensionality -> denoising
     # proj1 -> maping between raw and latent space 
     pca1 = PCA(n_components=m).fit(X1_train)
@@ -105,6 +93,7 @@ def align(X1, X2, m, resids_dict = {},cv=False):
 
     return proj1.T @ cdims1, proj2.T @ cdims2, ccs #cc.cancorr
 
+
 def correct_sign(ref,axes):
     axes = np.array(axes)
     flip = []
@@ -116,7 +105,6 @@ def correct_sign(ref,axes):
     axes *= np.array(np.sign(flip))[:,None,None]
 
     return axes, flip
-
 
 
  

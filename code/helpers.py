@@ -177,13 +177,10 @@ def split_reshape(X):
     X: neurons x trials x time bins
     """
     
-    print(X.shape)
     n_trials = X.shape[1]
-    print(n_trials)
     if n_trials % 2 == 1:
         n_trials -= 1
     
-    print(n_trials)
     # Shuffle-split
     idx = np.arange(n_trials)
     np.random.shuffle(idx)

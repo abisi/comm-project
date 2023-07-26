@@ -193,7 +193,7 @@ def split_reshape(X):
     X_tr = X_tr.reshape(X_tr.shape[0], -1)
     X_te = X_te.reshape(X_te.shape[0], -1)
 
-    return X_tr, X_te
+    return X_tr, X_te, idx[n_trials//2:], idx[:n_trials//2]
 
 # ---- PLOTTING  ---- #
 

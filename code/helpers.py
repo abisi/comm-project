@@ -155,8 +155,8 @@ def slice_array(spike_array, pre_start_bins, post_start_bins, smooth=True, smoot
 
     trial_start_idx = 200
 
-    start_idx = trial_start_idx - pre_start_bins
-    stop_idx =  trial_start_idx + post_start_bins
+    start_idx = trial_start_idx - pre_start_bins - smooth_kernel # to take border artefact into account
+    stop_idx =  trial_start_idx + post_start_bins + smooth_kernel
     
     for neur_idx in range(n_neurons):
         spike_array_trial = []
@@ -166,10 +166,34 @@ def slice_array(spike_array, pre_start_bins, post_start_bins, smooth=True, smoot
             if smooth:
                 trial_spikes = convolve_1d(trial_spikes, kernel_size=smooth_kernel)
                 
-            spike_array_trial.append(trial_spikes)
+            spike_array_trial.append(trial_spikes[smooth_kernel:-smooth_kernel])
         spike_array_processed.append(spike_array_trial)    
     
     return np.asarray(spike_array_processed)
+
+
+def split_reshape(X):
+    """
+    Split into train-test and reshape 2D
+    X: neurons x trials x time bins
+    """
+    
+    n_trials = X.shape[1]
+    if n_trials % 2 == 1:
+        n_trials -= 1
+    
+    # Shuffle-split
+    idx = np.arange(n_trials)
+    np.random.shuffle(idx)
+    X = X[:,idx,:]
+    X_tr, X_te = X[:,n_trials//2:,:], X[:,:n_trials//2,:]
+    
+    # Reshape
+    
+    X_tr = X_tr.reshape(X_tr.shape[0], -1)
+    X_te = X_te.reshape(X_te.shape[0], -1)
+
+    return X_tr, X_te
 
 # ---- PLOTTING  ---- #
 

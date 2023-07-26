@@ -54,11 +54,11 @@ def align(X1, X2, m, cv=False):
     """
 
     # change trial order so the 50/50 train-test split is random
-    n_trials = X1.shape[0]
-    idx = np.arange(n_trials)
-    np.random.shuffle(idx)
-    X1 = X1[idx]
-    X2 = X2[idx]
+    #n_trials = X1.shape[0]
+    #idx = np.arange(n_trials)
+    #np.random.shuffle(idx)
+    #X1 = X1[idx]
+    #X2 = X2[idx]
 
     if cv:
         X1_train,X1_test = X1[n_trials//2:], X1[:n_trials//2]
@@ -91,7 +91,7 @@ def align(X1, X2, m, cv=False):
     # compute canonical correlations
     ccs =  [sts.pearsonr(X1_proj[:,c],X2_proj[:,c])[0] for c in range(m)]
     
-    print(X1_proj.shape, X2_proj.shape)
+    #print(X1_proj.shape, X2_proj.shape)
     
     return proj1.T @ cdims1, proj2.T @ cdims2, X1_proj, X2_proj, ccs #cc.cancorr
 

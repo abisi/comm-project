@@ -90,8 +90,10 @@ def align(X1, X2, m, cv=False):
 
     # compute canonical correlations
     ccs =  [sts.pearsonr(X1_proj[:,c],X2_proj[:,c])[0] for c in range(m)]
-
-    return proj1.T @ cdims1, proj2.T @ cdims2, ccs #cc.cancorr
+    
+    print(X1_proj.shape, X2_proj.shape)
+    
+    return proj1.T @ cdims1, proj2.T @ cdims2, X1_proj, X2_proj, ccs #cc.cancorr
 
 
 def correct_sign(ref,axes):

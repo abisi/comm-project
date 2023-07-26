@@ -4,10 +4,12 @@ import scipy.ndimage
 
 # ---- DATA PREPROCESSING ---- #
 
-def convolve_1d(x, axis, kernel_size=5):
+#def convolve_1d(x, axis, kernel_size=5):
+def convolve_1d(x, kernel_size=5):
     
     kernel = np.ones(kernel_size) / kernel_size
-    x_convolved = np.apply_along_axis(lambda m: np.convolve(m, kernel, mode='full'), axis=axis, arr=x)
+    x_convolved  = np.convolve(x, kernel, mode='same')
+    #x_convolved = np.apply_along_axis(lambda m: np.convolve(m, kernel, mode='full'), axis=axis, arr=x)
     return x_convolved
 
 def halfgaussian_kernel1d(sigma, radius):
@@ -32,6 +34,47 @@ def halfgaussian_filter1d(input, sigma, axis=-1, output=None,
     weights = halfgaussian_kernel1d(sigma, lw)
     origin = -lw // 2
     return scipy.ndimage.convolve1d(input, weights, axis, output, mode, cval, origin)
+
+def slice_array(spike_array, pre_start_bins, post_start_bins, smooth=True, smooth_kernel=5):
+    """
+    Slice spike array
+
+    Parameters
+    ----------
+    spike_array : Neurons x trials x time_bins
+        spike count matrix
+    pre_start_bins : number of bins before trial start
+    post_start_bins : number of bins before trial start
+    smooth: whether to smooth
+    smooth_kernel: window size in (in bins; 1 bin=10ms)
+    
+    Returns
+    -------
+
+    spike_array_processed
+    -> slices spike array
+    """
+    n_neurons = spike_array.shape[0]
+    n_trials = spike_array.shape[1]
+    spike_array_processed = []
+
+    trial_start_idx = 200
+
+    start_idx = trial_start_idx - pre_start_bins
+    stop_idx =  trial_start_idx + post_start_bins
+    
+    for neur_idx in range(n_neurons):
+        spike_array_trial = []
+        for t_idx in range(n_trials):
+            trial_spikes = spike_array[neur_idx, t_idx, start_idx : stop_idx]            
+            
+            if smooth:
+                trial_spikes = convolve_1d(trial_spikes, kernel_size=smooth_kernel)
+                
+            spike_array_trial.append(trial_spikes)
+        spike_array_processed.append(spike_array_trial)    
+    
+    return np.asarray(spike_array_processed)
 
 # ---- PLOTTING  ---- #
 

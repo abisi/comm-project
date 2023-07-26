@@ -2,6 +2,100 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.ndimage
 
+# ---- DATA LOADING ---- #
+
+#trial_info classs
+class trial_info:
+    def __init__(self, datapath):
+        self.data = pd.read_csv(datapath)
+        self.trial_types = ["Auditory Hit", "Auditory Miss","Whisker Hit", 
+                            "Whisker Miss", "False Alarm", "Correct Rejection"]
+        self._trial_index = None
+        self._num_trials = None
+        
+    @property
+    def trial_index(self):
+        ah_idx = np.where(self.data["ah"] == 1)[0]
+        am_idx = np.where(self.data["am"] == 1)[0]
+        wh_idx = np.where(self.data["wh"] == 1)[0]
+        wm_idx = np.where(self.data["wm"] == 1)[0]
+        fa_idx = np.where(self.data["fa"] == 1)[0]
+        cr_idx = np.where(self.data["cr"] == 1)[0]
+        
+        all_idx = [ah_idx, am_idx, wh_idx, wm_idx, fa_idx, cr_idx]
+        
+        self._trial_index = {self.trial_types[i]: all_idx[i] for i in range(len(self.trial_types))}
+        
+        return self._trial_index
+    
+    @property
+    def num_trials(self):
+        if self._trial_index == None:
+            _ = self.trial_index
+            
+        self._num_trials = {key: len(self._trial_index[key]) for key in self._trial_index}
+            
+        return self._num_trials
+
+#neuron_info classs
+class neuron_info:
+    def __init__(self, datapath):
+        self.data = pd.read_csv(datapath)
+        self.n_neurons = self.data.shape[0]
+        self.areas = self.data["area"].unique()
+        self._area_idx = None
+        self._n_neurons_area = None
+    
+    @property
+    def area_idx(self):
+        self._area_idx = {area: np.where(self.data["area"] == area)[0] for area in self.areas}
+        
+        return self._area_idx
+    
+    @property
+    def n_neurons_area(self):
+        if self._area_idx == None:
+            _, self.area_idx
+        
+        self._n_neurons_area = {area: len(self.area_idx[area]) for area in self.area_idx}
+        
+        return self._n_neurons_area
+    
+def filter_data(spike_bins, trial_inf, neuron_inf, trial_types, areas):
+    if not isinstance(trial_inf, trial_info):
+        raise ValueError(f"Expected trial inf to be of type __main__.trial_info but got {type(trial_inf)} instead")
+    
+    if not isinstance(neuron_inf, neuron_info):
+        raise ValueError(f"Expected trial inf to be of type __main__.neuron_info but got {type(trial_inf)} instead")
+        
+    if not isinstance(areas, list):
+        raise ValueError(f"areas to be of type list but got {type(areas)} instead")
+        
+    if not isinstance(trial_types, list):
+        raise ValueError(f"trial_types to be of type list but got {type(areas)} instead")
+
+        
+    f_data = {}
+    for trial_type in trial_types:
+        if trial_type not in trial_inf.trial_types:
+            raise NameError(f"Trial type can only be one of the following: {trial_inf.trial_types}")
+        
+        else:
+            f_data[trial_type] = {}
+            trial_type_idx = trial_inf.trial_index[trial_type]
+            for area in areas:
+                if area not in neuron_inf.areas:
+                    print(area)
+                    raise NameError(f"Area can only be one of the following: {neuron_inf.areas}")
+                    
+                else:
+                    area_idx = neuron_inf.area_idx[area]
+                    
+                    
+                    f_data[trial_type][area] = spike_bins[area_idx][:,trial_type_idx,:]
+                    
+    return f_data
+
 # ---- DATA PREPROCESSING ---- #
 
 #def convolve_1d(x, axis, kernel_size=5):

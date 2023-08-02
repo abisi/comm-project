@@ -172,11 +172,13 @@ def slice_array(spike_array, pre_start_bins, post_start_bins, smooth=True, smoot
     return np.asarray(spike_array_processed)
 
 
-def split_reshape(X):
+def split_reshape(X, trial_indices):
     """
     Split into train-test and reshape 2D
     X: neurons x trials x time bins
     """
+    
+    trial_indices = np.concatenate(trial_indices)
     
     n_trials = X.shape[1]
     if n_trials % 2 == 1:
@@ -186,6 +188,9 @@ def split_reshape(X):
     idx = np.arange(n_trials)
     np.random.shuffle(idx)
     X = X[:,idx,:]
+    idx_tr = idx[n_trials//2:]
+    idx_te = idx[:n_trials//2]
+    
     X_tr, X_te = X[:,n_trials//2:,:], X[:,:n_trials//2,:]
     
     # Reshape
@@ -193,7 +198,7 @@ def split_reshape(X):
     X_tr = X_tr.reshape(X_tr.shape[0], -1)
     X_te = X_te.reshape(X_te.shape[0], -1)
 
-    return X_tr, X_te, idx[n_trials//2:], idx[:n_trials//2]
+    return X_tr, X_te, [idx_tr, trial_indices[idx_tr]], [idx_te, trial_indices[idx_te]]
 
 # ---- PLOTTING  ---- #
 
@@ -206,11 +211,11 @@ def get_trial_type_color(trial_type):
     """
     Get trial type color.
     """
-    trial_colors = {'ah':'mediumblue',
-               'wh':'forestgreen',
-               'wm':'crimson',
-               'fa':'k',
-               'cr':'dimgray'}
+    trial_colors = {'Auditory Hit':'mediumblue',
+               'Whisker Hit':'forestgreen',
+               'Whisker Miss':'crimson',
+               'False Alarm':'k',
+               'Correct Rejection':'dimgray'}
     return trial_colors[trial_type]
 
 
